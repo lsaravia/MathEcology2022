@@ -35,12 +35,11 @@ yticks=:none,framestyle=:none,color=[ :black , :green])
 #
 #  Construir las primeras funciones
 #
-
-
 function initialize_bosque(;fil::Int=200,col::Int=200, density::Float64=0.1)
 	
 	space = zeros(Int64,fil,col)
     ini_dens = trunc(Int, fil*col*density)
+     
 	[ space[rand(1:fil) , rand(1:col)] = 1 for i in 1:ini_dens]
     # no anda si no retorna space 
     return space
@@ -104,15 +103,15 @@ end
 #
 # Funcion para graficar el bosque
 # 
-plot_bosq(x) = heatmap(x,aspect_ratio=1,legend=:none,xticks=:none,
+plot_bosque(x) = heatmap(x,aspect_ratio=1,legend=:none,xticks=:none,
 yticks=:none,framestyle=:none,color=[ :black , :green])
 
 
 
-bosq = initialize_bosque()
-plot_bosq(bosq)
-step_bosque!(bosq,neighbors_VN)
-plot_bosq(bosq)
+# bosq = initialize_bosque()
+# plot_bosq(bosq)
+# step_bosque!(bosq,neighbors_VN)
+# plot_bosq(bosq)
 
 #
 # Add parameters 
@@ -159,13 +158,40 @@ function step_bosque!(landscape::Matrix{Int}, neighborhood, parms)
 end
 
 
+#
+# Prueba de funciones
+#
 bosq = initialize_bosque()
-plot_bosq(bosq)
+plot_bosque(bosq)
 step_bosque!(bosq,neighbors_VN, (.16,.1))
 plot_bosq(bosq)
 
+using Random
+#
+# Version mejorada con densidad inicial mas exacta
+#
+"""
+    initialize_bosque(;fil::Int=200,col::Int=200, density::Float64=0.1)
+
+Genera una matriz de nros enteros `fil x col` con una densidad `density` de 1
+
+"""
+function initialize_bosque(;fil::Int=200,col::Int=200, density::Float64=0.1)
+	
+	space = zeros(Int64,fil,col)
+    ini_dens = trunc(Int, fil*col*density)
+    for i in 1:fil, j in 1:col
+        if rand() ≤ density        
+            space[i,j] = 1
+        end
+    end
+    return space
+end
 
 
+#
+# Ejemplo de dinámica
+#
 bosq = initialize_bosque()
 pbosq = zeros(1000)
 vbosq = zeros(1000)
@@ -183,20 +209,45 @@ plot!(vbosq, label="Var / mean")
 #
 #  Ejecutar el modelo de bosque 
 #
-function run_bosque(vecindad, parms; pasos=100, plot::Bool=false)
-	pob = zeros(pasos)
+function run_bosque(neighborhood, parms; pasos=100, plot::Bool=false)
+	pob = zeros(pasos,2) 
 	m = initialize_bosque()
 	N = length(m)
-	pob[1] = sum(m)/N 
+	pob[1,1] = sum(m)/N 
+    pob[1,2] = var(m)/pob[1,1]
 	for i in 2:pasos
-		step_bosque!(m,vecindad,parms)
+		step_bosque!(m,neighborhood,parms)
 		if plot 
 			#= 
 			usar display para graficar dentro de una funcion que retorna otra cosa que no sea el plot
 			=#
 			display(plot_bosque(m))
 		end
-		pob[i]=sum(m)/N 
+		pob[i,1]=sum(m)/N          # densidad en el espacio 
+        pob[i,2]=var(m)/pob[i,1]   # Coeficiente de variacion = Varianza/media
 	end
 	return pob
+end
+
+rr = run_bosque(neighbors_VN,(1.5,1))
+plot(rr, label=["Densidad" "CV Espacial"])
+
+#
+# generating a gif
+#
+using Statistics
+mm = initialize_bosque(fil=200,col=200, density=0.1 )
+fint = 100
+N = 200*200
+pob = [sum(mm)/N]
+λ = 1.5
+δ = 1
+@gif for i in 1:fint
+    step_bosque!(mm,neighbors_VN,(λ,δ));
+
+    plt1 = plot_bosque(mm)
+    push!(pob,sum(mm)/N)         # densidad en el espacio 
+    #pob[i,2]=var(mm)/pob[i,1]   # Coeficiente de variacion = Varianza/media
+    plt2=plot(pob,title="λ=$(λ) δ=$(δ) μ=$(λ/δ)", labels="Density",xlim=(0,fint),ylim=(0,.2))
+    plot(plt1, plt2, layout = (1, 2))
 end

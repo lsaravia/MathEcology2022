@@ -1,189 +1,77 @@
 ---
 title: "Ecología Estocastica - 1.6"
-subtitle: "Ambientes fluctuantes"
+subtitle: "Ajuste de modelos por ABC"
 author: "L.A. Saravia"
-date: "12/2018"
+date: "04/2022"
+editor_options:
+  chunk_output_type: console
 output:
-  slidy_presentation:
-    duration: 180
-    incremental: yes
-  ioslides_presentation:
-    incremental: yes
-  beamer_presentation:
-    incremental: yes
-    pandoc_args: --latex-engine=xelatex
+  xaringan::moon_reader:
+    css:
+      - default-fonts
+      - css/leo.css
+    lib_dir: libs
+    nature:
+      highlightStyle: github
+      countIncrementalSlides: true
+      countdown: 60000
+      ratio: "16:9"
 ---
 
-
-## Logístico estocástico con ambiente fluctuante
-
-* Podemos hacer que el ambiente fluctue variando el valor de $r$ 
-
-    $$B(N)= r N (1+cos(\omega t))$$
-  
-    $$D(N)= s N^2 $$ 
-  
-* El período de oscilación es $T$, la frecuencia $f=1/T$, la frecuencia angular es $\omega=2 \pi f=2 \pi / T$ radianes por unidad de tiempo, donde $2 \pi$ radianes se corresponde con 360 grados.  
-
-* La ecuación determinista sería
-
-
-    $$\dfrac{dN}{dt}=B(N,t) - D(N,t) = N(t) [r (1+a cos(\omega t)) - sN(t)]$$ 
-
-## Simulacion del modelo determinista
-
-```{r,eval=T}
-
-# Paquete para resolver ecuaciones diferenciales
-#
-require(deSolve)
-
-# Ecuación logistica con fluctuaciones ambientales 
-#
-logistic_ef_det<-function(t,State,Pars){
-  with(as.list(c(State, Pars)), {
-    
-  dP <- N*(r*(1+a *cos(omega*t))-s*N) 
-  
-  return(list(c(dP)))
-  })
-}
-
-pars  <- c(r   = 2,    # growth rate 
-           s  = .2,
-           a = 0.5,
-           omega= 2*pi/10)     # K=r/s
-yini  <- c(N = 1)
-times <- seq(0, 100, by = 1)
-out   <- ode(yini, times, logistic_ef_det, pars)
-
-
-title <- paste0("r=",pars[1]," K=",pars[1]/pars[2]," T=",2*pi/pars[4])
-plot(N~time,data=out,type='l',main=title)
-
+```{r xaringan-scribble, echo=FALSE}
+xaringanExtra::use_scribble()
+#xaringanExtra::use_webcam()
 ```
 
+## ABC - Approximate Bayesian computation
 
-## Simulación estocástica
+* Para un modelo $M(\phi )$ dado que tenemos observaciones $D_{obs}$
 
-Ea algoritmo es el misma que para la logística estocástica sin fluctuaciones, solo cambia $B(N)$ y $D(N)$
+--
 
-* El algoritmo para simular es:
+* Debe ser posible calcular $p(D_{obs} |\phi)$, la probabilidad de obtener los datos observados, para cada posible parametrización del modelo $\phi$.
+--
 
-    1. Elegir condiciones iniciales y parámetros 
-    1. Calcular la tasa total de eventos $R(N,t)=B(N,t)+D(N,t)$
-    1. Tomar dos numeros al azar $Y_1$, 
-    2. Si $Y_1 \leq B(N)/R(N)$ el próximo evento $N+1$, sino es $N-1$
-    3. Calcular el tiempo inter-eventos como un número aleatorio con distribución exponencial y tasa $R(N)$
-    4. Acumular $t$
-    5. Volver a 2.
-    
-```{r,eval=TRUE}
+* Usaremos el término likelihood (verosimilitud) como sinónimo de $p(D_{obs} |\phi)$.
 
-# Simulacion estocastica para modelo logistico
-# con fluctuación ambiental en r (1+a cos(w t))
-#
-STO_logistic_ef <- function(x,pars,times)
-{
-  # Setup an array to store results: time, N
-  #
-  ltimes<-length(times)
-  output <- array(dim=c(ltimes,2),dimnames=list(NULL,names(x)))
-  t <- x[1]
-  stopifnot(t<=times[1])
-  
-  # loop until either k > maxstep or
-  #
-  output[1,] <-x
-  k <- 2
-  while (k <= ltimes) {
-    while (t < times[k]) {
-      x <- logistic_ef_onestep(x,pars) 
-      t <- x[1]
-    }
-    while (t >= times[k] && k <= ltimes) {
-      output[k,] <- x
-      k <- k+1
-    }
-  }
-  as.data.frame(output)
-}
+--
 
-# Logistica con fluctuación ambiental en r - Simulacion de Eventos 
-#
-logistic_ef_onestep<- function(x,pars){
-  p<-as.list(pars)
-  # 2nd element is the population 
-  #
-  N<-x[2]
-  B<- p$r*(1+p$a*cos(p$omega*x[1]))
-  if(B<0) B<-0
-  R <- B+p$s*N
-  event_rate<- B/R
-  if(N>0){
-    if(runif(1) <=event_rate ){
-      N<-N+1
-    } else {
-      N<-N-1
-    }
-  }
-  # Exponential random number
-  tau<-rexp(n=1,rate=R)
-  
-  c(x[1]+tau,N)
-}
-
-#source("R/Simul_fun.r")
-
-set.seed(333)    # make results repeatable
-nsims <- 5           # number of simulations to run
-N0 <- 1              # initial population 
-times <- 0:100          # Simulation steps 
-xstart <- c(time=0,N=N0)  # initial conditions
-params <- c(r=2,s=0.2,a=.5, omega= 2*pi/10) # parameters 
-simdat <- vector(mode='list',length=nsims) # to store simulated data
-
-# Run simulations
-#
-for (k in 1:nsims) {
-  simdat[[k]] <- STO_logistic_ef(xstart,params,times)
-}
-
-# Range for plots
-#
-trange <- range(times)
-nrange <- range(sapply(simdat,function(x)range(x$N)))
-if(max(out[,2]) > max(nrange))
-  nrange <- range(out[,2])
-
-{
-  title <- paste0("r=",pars[1]," K=",pars[1]/pars[2]," T=",2*pi/pars[4])
-  plot(trange,nrange,type='n',xlab='time',ylab="Pop",bty='l',main=title)
-  grid()
-  for (k in 1:nsims)
-    lines(N~time,data=simdat[[k]],col=k,type='l',pch=16)
-  
-  lines(N~time,data=out,type='l',lwd=0.5, col="black", lty="dashed")
-
-}
+* Sobre la base de esta probabilidad, se pueden derivar métodos estadísticos para la estimación de parámetros, la selección de modelos y el análisis de incertidumbre.
 
 
-```
+---
+## ABC - Simulaciones estocásticas 
 
-## Ejercicios computacionales
+.center[
+<img src="Images/stochasticSimulation.png" width="60%"/>
+]
 
-Utilizar la aplicación <https://phyzoo.shinyapps.io/LogisticStochastic/> para responder:  
+---
+## ABC - Procesos estocásticos 
 
-* ¿Qué pasa cuando aumenta la capacidad de carga, por ejemplo a 100  $s=0.02$? 
+.center[
+<img src="Images/likelihoodInference.png" width="70%"/>
+]
 
-* Compare las oscilaciones obtenidas con el modelo determinista y el estocástico. ¿Cual es la relación entre la tasa de crecimiento, la amplitud y la frecuencia angular.
+---
+## ABC - Comparacion de modelos y datos
 
-* ¿Como podríamos agregarle estocacidad a las fluctuaciones ambientales?
+.center[
+<img src="Images/summaryStatistics.png" width="70%"/>
+]
 
+---
+## ABC - Metodo del rechazo para obtener el likelihood
+
+.center[
+<img src="Images/rejectionMethod.png" width="45%"/>
+]
+
+---
 
 ## Referencias
 
-1. Renshaw, E. (1993). Modelling biological populations in space and time. Cambridge University Press. Capitulo 8
+1. Hartig, F., Calabrese, J. M., Reineking, B., Wiegand, T., and Huth, A. (2011). Statistical inference for stochastic simulation models – theory and application. Ecology Letters 14, 816–827. doi:10.1111/j.1461-0248.2011.01640.x.
 
-1. Lawson, C.R., Vindenes, Y., Bailey, L. & van de Pol, M. (2015). Environmental variation and population responses to global change. Ecol. Lett., 18, 724–736
+2. Csilléry, K., Blum, M. G. B., Gaggiotti, O. E., and François, O. (2010). Approximate Bayesian Computation (ABC) in practice. Trends in Ecology & Evolution 25, 410–418. doi:http://dx.doi.org/10.1016/j.tree.2010.04.001.
 
