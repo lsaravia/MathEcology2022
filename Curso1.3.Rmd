@@ -1,0 +1,156 @@
+---
+title: "Ecología Estocastica - 1.3"
+subtitle: "Crecimiento logístico"
+author: "L.A. Saravia"
+date: "04/2022"
+editor_options:
+  chunk_output_type: console
+output:
+  xaringan::moon_reader:
+    css:
+      - default-fonts
+      - css/leo.css
+    lib_dir: libs
+    nature:
+      highlightStyle: github
+      countIncrementalSlides: true
+      countdown: 60000
+      ratio: "16:9"
+---
+
+```{r xaringan-scribble, echo=FALSE}
+xaringanExtra::use_scribble()
+#xaringanExtra::use_webcam()
+```
+
+## Ecuaciones diferenciales
+
+* "En la naturaleza esperaríamos observar los puntos o atractores estables, porque todo lo tenía que pasar ya ha pasado." R. Solé.
+
+--
+
+* $\dfrac{dN}{dt}=N r[ 1-N/K]$    
+
+--
+
+* Este es un sistema no-lineal
+
+* La solución es 
+
+    $N(t) = \frac{K}{1+( \frac{K-N_0}{N_0}) e^{-rt}}$
+
+---
+## Cuales son y como son los puntos de equilibrio (atractores)
+
+1. Definimos $\frac{dN}{dt}= f_u(N)$
+
+--
+2. El conjunto de puntos de equilibrio es: $N^* \implies \left(\frac{dN}{dt}\right)_{N=N^*}=0 \iff f_u(N^*) =0$
+
+--
+3. $f_u(N) = r N \left( 1 - \frac{N}{K}\right)$ para $\mu = \left\{r , K \right\}$
+
+--
+4. La relación 1. es valida en general y en particular:
+
+   $\frac{d(N^* + y )}{dt} = f_u(N^*+y)$ 
+
+---
+## Cuales son y como son los puntos de equilibrio (atractores)
+
+*  Si $y$ es pequeño podemos aproximar $f$ usando la expansión de Taylor
+
+    $\frac{dy}{dt} = f_u(N^*) + \left( \frac{df_u}{dN} \right)_{N^*}y$
+
+--
+
+* Si tomamos $\lambda_u = \left( \frac{df_u}{dN} \right)_{N^*}$ 
+
+--
+* finalmente nos queda  
+$$\frac{dy}{dt} = \lambda_u y
+\begin{cases}
+\text{Si  }  \lambda_u< 0 \implies & N^* \text{es estable} \\
+\text{Si  }  \lambda_u  > 0 \implies & N^* \text{es inestable}\\ 
+\text{Si  }  \lambda_u  = 0 \implies & N^* \text{es marginal} 
+\end{cases}$$
+
+---
+## Logístico estocástico 
+
+* Tenemos 3 posibles eventos  
+
+$$N(t+h)=
+\begin{cases}
+N  & \text{no paso nada}\\
+N-1  & \text{1 Nacimiento}\\
+N+1  & \text{1 Muerte}
+\end{cases}$$
+
+* Hay que poner la ecuación logística en términos de natalidad $B(N)$ y mortalidad $D(N)$ 
+
+1. $P_N(N(t+h)=N(t)+1) = B[N(t)]h$ 
+
+1. $P_N(N(t+h)=N(t)-1) = D[N(t)]h$ 
+
+1. $P_N(N(t+h)=N(t)) = 1-(B[N(t)]+D[N(t)])h$ 
+
+* Hay que definir $D_N$ y $B_N$ para la ecuación logística
+
+---
+
+## Simulaciones 
+
+* Podemos tomar la siguiente definicion: 
+
+  $B(N)-D(N) = r N -r N^2 /K  = N r (1- N/K)$
+
+
+* Para hacer simulaciones calculamos la tasa total de eventos $R(N)=B(N)+D(N)$
+
+--
+
+* Si la población es de tamaño $N$ al tiempo $t$ el próximo evento va a ser un nacimiento con una probabilidad $B(N)/R(N)$ o una muerte con probabilidad $D(N)/R(N)$
+
+--
+
+* El tiempo $S$ hasta el próximo evento es una variable aleatoria con distribución exponencial
+
+    $Pr(S\geq s)=e^{-R(N)s}$
+    
+--
+
+* Para simular un valor de $s$ generamos un numero al azar $Y$ entre 0 y 1
+
+    $e^{-R(N) s}=Y$
+    
+    $s = -\dfrac{log_e(Y)}{R(N)}$
+
+---
+
+## Simular el proceso generalizado de nacimiento-muerte
+
+* El algoritmo para simular es:
+
+    1. Calcular $B(N)$ y $D(N)$
+    1. Calcular la tasa total de eventos $R(N)=B(N)+D(N)$
+    1. Tomar dos numeros al azar $Y_1$, $Y_2$
+    2. Si $Y_1 \leq B(N)/R(N)$ el próximo evento es un nacimiento, sino es una muerte.
+    3. Calcular el tiempo inter-eventos $s = - log_e(Y_2) / R(N)$
+    4. Acumular $N = N + 1$ o $N = N - 1$ y $t = t + s$
+    5. Volver a 1. 
+    
+---
+
+## Ejercicio
+
+* Agregar un termino de explotación (mortalidad constante) a la logística determinista y la estocástica
+
+---
+
+## Referencias
+
+1. Renshaw, E. (1993). Modelling biological populations in space and time. Cambridge University Press. [Capitulo 3](S<https://drive.google.com/file/d/0BzexxHVKtpiAdklTQTgwUU9jTXc/view?usp=sharing&resourcekey=0-pZNZZj1_b6CVcEklN31kLw) 
+
+2. Gillespie, D.T. (1992) Markov Processes: An Introduction for Physical Scientists, Academic Press.
+

@@ -1,0 +1,142 @@
+---
+title: "Ecología Estocastica - 1.1"
+subtitle: "Crecimiento exponencial"
+author: "L.A. Saravia"
+date: "04/2022"
+editor_options:
+  chunk_output_type: console
+output:
+  xaringan::moon_reader:
+    css:
+      - default-fonts
+      - css/leo.css
+    lib_dir: libs
+    nature:
+      highlightStyle: github
+      countIncrementalSlides: true
+      countdown: 60000
+      ratio: "16:9"
+---
+
+```{r xaringan-scribble, echo=FALSE}
+xaringanExtra::use_scribble()
+#xaringanExtra::use_webcam()
+```
+
+## Deterministas vs. Estocásticos 
+
+* ¿Cuales son las suposiciones de las ecuaciones diferenciales?
+
+--
+
+* Las ecuaciones implican que la población en algun momento tiene por ej. 10.8 individuos, eso implica que estaríamos haciendo un promedio. Si la población es un promedio estamos asumiendo que el proceso es probalístico. 
+
+--
+
+* Si muestreamos una población en la naturaleza, hay muchos factores que pueden estar variando e influenciando los valores poblacionales
+
+--
+
+* Pero si cultivamos una población experimental con un ambiente controlado, siempre vamos a encontrar los mismos resultados?
+
+---
+
+## Crecimiento Exponencial - Ecuaciones diferenciales
+
+1.  $N(t+h)=N(t)+\lambda h N(t)$
+
+--
+
+2.  $N(t+h)-N(t)=\lambda h N(t)$
+
+--
+
+1.  $\dfrac{N(t+h)-N(t)}{h}=\lambda N(t)$
+
+--
+
+1.  Cuando $h \to 0$ se convierte en 
+
+ $\dfrac{dN}{dt}=\lambda N$
+
+--
+1. Que se puede integrar por partes y da 
+
+  $N(t)=N_0 e^{\lambda t}$
+  
+---
+## Exponencial estocástico
+
+* Supongamos que la probabilidad de que un organismo se reproduzca en un intervalo de tiempo h es $\lambda h$ 
+
+$$N(t+h)=
+\begin{cases}
+N  & \text{no paso nada}\\
+N-1  & \text{1 nacimiento}
+\end{cases}$$
+
+--
+
+* $P_N(t)=$ probabilidad de que la población sea de tamaño $N$ a tiempo $t$
+
+--
+
+* $P_N(t+h)=P_N(t)(1-\lambda N h) + P_{N-1}(t) \lambda (N-1) h$
+
+--
+
+* $\dfrac{P_N(t+h)-P_N(t)}{h}=-P_N(t)\lambda N  + P_{N-1}(t) \lambda (N-1)$
+
+--
+* Cuando $h\to0$     
+    
+$$\dfrac{dP_N(t)}{dt}=-P_N(t)\lambda N  + P_{N-1}(t) \lambda (N-1)$$
+
+* La solución es una distribución de probabilidades binomial negativa.
+
+---
+## Simulaciones 
+
+* Si la población es $N$ el tiempo $S$ al próximo evento (nacimiento) es una variable aleatoria con distribución exponencial
+  
+    $Pr(S\geq s)=e^{-\lambda N s}$
+    
+* Para simular un valor de $s$ generamos un numero al azar $Y$ entre 0 y 1
+
+    $e^{-\lambda N s}=Y$
+    
+    $s = -\dfrac{log_e(Y)}{\lambda N}$
+   
+
+---
+
+## Ejercicios
+
+* ¿Cuales son las suposiciones del modelo estocástico?
+
+    * El proceso es una cadena de Markov, el estado futuro es dependiente del estado actual, independiente de los estados anteriores: $N \xrightarrow{\lambda N}N+1$
+    
+    * Los nacimientos y las muertes son variables entre los individiduos: estocacidad demográfica.
+
+--
+
+* Simular el crecimiento exponencial determinista.
+
+--
+
+* Simular el crecimiento estocastico exponencial.
+
+--
+
+* Como sería el modelo en que los individuos solo mueren? 
+
+---
+
+---
+## Referencias
+
+1. Black, A.J. & McKane, A.J. (2012). Stochastic formulation of ecological models and their applications. Trends Ecol. Evol., 27, 337–345 <https://drive.google.com/open?id=0BzexxHVKtpiAY05KZnJpMC10SWM>
+
+1. Renshaw, E. (1993). Modelling biological populations in space and time. Cambridge University Press. Capitulo 2
+
+

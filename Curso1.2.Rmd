@@ -1,0 +1,176 @@
+---
+title: "Ecología Estocastica - 1.2"
+subtitle: "Todo lo que nace, muere"
+author: "L.A. Saravia"
+date: "04/2022"
+editor_options:
+  chunk_output_type: console
+output:
+  xaringan::moon_reader:
+    css:
+      - default-fonts
+      - css/leo.css
+    lib_dir: libs
+    nature:
+      highlightStyle: github
+      countIncrementalSlides: true
+      countdown: 60000
+      ratio: "16:9"
+---
+
+```{r xaringan-scribble, echo=FALSE}
+xaringanExtra::use_scribble()
+#xaringanExtra::use_webcam()
+```
+
+## Generalidades de la simulación de modelos
+
+* Es muy fácil cometer errores
+
+--
+
+* SIEMPRE SIEMPRE SIEMPRE verificar
+
+--
+
+* SIEMPRE^100 verificar
+
+--
+
+* Comportamientos conocidos del modelo: 
+    
+    1. Si la población inicial es 0 tiene que seguir siendo 0
+    
+    2. Puntos de equilibrio, etc.
+--
+* Versión estocastica contra deterministica
+
+* Versión en Julia versus Versión en R/Phyton
+
+* Versión de una persona contra la Versión de otra persona
+
+---
+
+## Crecimiento y Muerte
+
+---
+
+## Crecimiento y Muerte
+
+1. Crecimiento constante que no depende de la población o inmigración
+
+    $N(t+h)=N(t)+ h \mu$
+    
+--
+
+2. Y le agregamos mortalidad o decaimiento constante pero que si depende de la población 
+    
+    $N(t+h)=N(t)+ h (\mu - \delta N(t) )$
+    
+    $\dfrac{N(t+h)-N(t)}{h}=\mu - \delta N(t)$
+  
+--
+
+4. Cuando $h \to 0$ 
+
+    $\dfrac{dN}{dt}=\mu - \delta N(t)$ 
+
+5. La solución suponiendo $N(0)=0$ es
+
+    $N(t)= \frac{\mu}{\delta}( 1 - e^{-\delta t})$
+    
+---
+
+---
+## Como lo hacemos estocástico?
+
+* Tenemos 3 posibles eventos  
+
+$$N(t+h)=
+\begin{cases}
+N  & \text{no paso nada}\\
+N-1  & \text{1 Nacimiento o Inmigración}\\
+N+1  & \text{1 Muerte}
+\end{cases}$$
+
+
+--
+
+* Hay que poner la ecuación en términos de natalidad $B(N)$ y mortalidad $D(N)$ 
+
+  1. $P_N(N(t+h)=N(t)+1) = B[N(t)]h$ 
+
+  1. $P_N(N(t+h)=N(t)-1) = D[N(t)]h$ 
+
+  1. $P_N(N(t+h)=N(t)) = 1-(B[N(t)]+D[N(t)])h$ 
+
+---
+
+## Derivando la ecuación fundamental (master equation)
+
+1. $P_N(t+h)=P_{N+1}(t)D_{N+1}h  + P_{N-1}(t)B_{N-1}h \\ +  P_{N}(t)(1-(D_N+B_N)h)$
+
+
+2. $\dfrac{P_N(t+h)-P_N(t)}{h}=P_{N+1}(t)D_{N+1}  + P_{N-1}(t)B_{N-1} - P_{N}(D_{N}+B_{N})$
+
+
+3. Cuando $h\to0$     
+
+$$\dfrac{dP_N(t)}{dt}=P_{N+1}(t)D_{N+1}  + P_{N-1}(t)B_{N-1} - P_{N}(D_{N}+B_{N})$$
+    
+* Hay que definir $D_N$ y $B_N$ 
+
+---
+
+## Simulaciones 
+
+* El crecimiento o inmigración es $B(N)= \mu$, 
+
+  y la mortalidad es $D(N)= \delta N$ 
+  
+* Para hacer simulaciones calculamos la tasa total de eventos $R(N)=B(N)+D(N)$
+
+* Si la población es de tamaño $N$ al tiempo $t$ el próximo evento va a ser un nacimiento con una probabilidad $B(N)/R(N)$ o una muerte con probabilidad $D(N)/R(N)$
+
+* El tiempo $S$ hasta el próximo evento es una variable aleatoria con distribución exponencial
+
+  $Pr(S\geq s)=e^{-R(N)s}$
+    
+* Para simular un valor de $s$ generamos un numero al azar $Y$ entre 0 y 1
+
+    $e^{-R(N) s}=Y$
+    
+    $s = -\dfrac{log_e(Y)}{R(N)}$
+
+---
+
+## Simular el proceso generalizado de nacimiento-muerte
+
+* El algoritmo para simular es:
+
+    1. Calcular $B(N)$ y $D(N)$
+    1. Calcular la tasa total de eventos $R(N)=B(N)+D(N)$
+    1. Tomar dos numeros al azar $Y_1$, $Y_2$
+    2. Si $Y_1 \leq B(N)/R(N)$ el próximo evento es un nacimiento, sino es una muerte.
+    3. Calcular el tiempo inter-eventos $s = - log_e(Y_2) / R(N)$
+    4. Acumular $N = N + 1$ o $N = N - 1$ y $t = t + s$
+    5. Volver a 1. 
+    
+* La simulación usando este método es exacta. (Gillespie 1992) 
+
+
+---
+
+## Ejercicio
+
+* Simular logística determinista y la estocástica
+
+---
+
+## Referencias
+
+1. Renshaw, E. (1993). Modelling biological populations in space and time. Cambridge University Press. [Capitulo 3](S<https://drive.google.com/file/d/0BzexxHVKtpiAdklTQTgwUU9jTXc/view?usp=sharing&resourcekey=0-pZNZZj1_b6CVcEklN31kLw) 
+
+2. Gillespie, D.T. (1992) Markov Processes: An Introduction for Physical Scientists, Academic Press.
+
+3. Csilléry et al. (2010). Approximate Bayesian Computation (ABC) in practice. Trends in Ecology & Evolution. 25:410–8.

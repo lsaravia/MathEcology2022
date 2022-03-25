@@ -1,0 +1,218 @@
+---
+title: "Ecología Estocastica - 1.4 Bis"
+subtitle: "Fuego en el bosque"
+author: "L.A. Saravia"
+date: "04/2022"
+editor_options:
+  chunk_output_type: console
+output:
+  xaringan::moon_reader:
+    css:
+      - default-fonts
+      - css/leo.css
+    lib_dir: libs
+    nature:
+      highlightStyle: github
+      countIncrementalSlides: true
+      countdown: 60000
+      ratio: "16:9"
+---
+
+```{r xaringan-scribble, echo=FALSE}
+xaringanExtra::use_scribble()
+#xaringanExtra::use_webcam()
+```
+## Modelo Fuegos en el bosque
+
+
+
+---
+## Modelo Fuegos en el bosque
+
+
+---
+## Modelo Fuegos en el bosque
+
+* Tenemos el Bosque $V$ que crece a una tasa $\lambda_V$ 
+
+  $V + Ø \xrightarrow{\lambda_V} V + V$
+
+* y se muere con tasa $d_V$
+
+  $V \xrightarrow{d_V} Ø$
+
+* Si suponemos que es un area determinada (finita) esto define un crecimiento logístico
+
+---
+## Modelo Fuegos en el bosque
+
+* El fuego $F$ se propaga en el bosque
+
+  $F + V \xrightarrow{\lambda_F} F + F$
+--
+
+* El fuego puede encenderse también en el bosque
+
+  $V \xrightarrow{b_F} F$
+
+--
+
+* El fuego puede extinguirse  $F \xrightarrow{d_F} Ø$
+
+---
+
+## Modelo Fuegos en el bosque 
+
+* Como que esto sucede en un área determinada podemos pensar en proporciones
+
+   $F + V + Ø = 1$  
+
+--
+
+* Y podemos definir las siguientes ecuaciones 
+
+$$\begin{align}
+   \frac{dØ}{dt} & = - \lambda_V V Ø + d_F F + d_V V \\
+   \frac{dF}{dt} & = -d_F F + (\lambda_F F + b_F) V \\
+   \frac{dV}{dt} & = -(d_V + b_F + \lambda_F F) V + \lambda_V V Ø
+\end{align}$$
+
+
+* Dado que $Ø = 1 - F - V$ consideramos solamente las ecuaciones de $F$ and $V$.
+
+---
+## Modelo Fuegos en el bosque 
+
+* Reemplazamos
+
+$$\begin{align}
+   \frac{dF}{dt} & = -d_F F + (\lambda_F F + b_F) V \\
+   \frac{dV}{dt} & = -(d_V + b_F + \lambda_F F) V + \lambda_V V (1 - F - V)
+\end{align}$$
+
+* En general el estado estacionario está dado por:
+
+$$\begin{equation}
+    \begin{cases}
+    d_F F = (\lambda_F F + b_F)V \\
+    (d_V + b_F + \lambda_F F)V  =  \lambda_V V (1 - V - F)
+    \end{cases}
+\end{equation}$$
+
+* Sabemos que $(V,F)=(0,0)$ es un punto de equilibrio
+
+* Para calcular la estabilidad tenemos que usar el Jacobiano (en vez de la derivada)
+
+$$\begin{equation}
+    J = \begin{pmatrix}\frac{\partial f_1}{\partial N_1} & \frac{\partial f_1}{\partial N_2} \\ \frac{\partial f_2}{\partial N_1} & \frac{\partial f_2}{\partial N_2} \\\end{pmatrix}
+\end{equation}$$
+
+---
+
+## Calculando el Jacobiano
+
+* Para calcular la estabilidad tenemos que usar el Jacobiano (en vez de la derivada)
+
+--
+
+* Reemplazando
+
+$$\Large\begin{equation}
+    J = \begin{pmatrix}\frac{\partial(-d_F F + (\lambda_F F + b_F) V) }{\partial F} & \frac{\partial (-d_F F + (\lambda_F F + b_F) V)}{\partial V} \\ 
+    \frac{\partial(-(d_V + b_F + \lambda_F F) V + \lambda_V V (1 - F - V)) }{\partial F} & \frac{\partial(-(d_V + b_F + \lambda_F F) V + \lambda_V V (1 - F - V))}{\partial V} \\\end{pmatrix}
+\end{equation}$$
+
+--
+
+* La matriz Jacobiana evaluada en $(V^\text{abs}, F^\text{abs})$ es:
+
+$$\large\begin{equation}
+    J^\text{abs} = \begin{pmatrix}-d_F & b_F \\ 0 & - (b_F + d_V) +\lambda_V \\\end{pmatrix}
+\end{equation}$$
+
+
+---
+
+## Puntos de equilibrio estables o inestables
+
+* Esta era la aproximación de Taylor a las fluctuaciones alrededor de un equilibrio 
+
+$$ \frac{d\mathbf{y}(t)}{dt}= \mathbf{J\; y}(t) $$
+--
+
+* Esta es una ecuación lineal cuya dinámica esta determinada por los autovalores de $\mathbf{J}$ 
+
+--
+
+* $\mathbf{J}$ es la llamada matriz de la comunidad.
+
+* Para el modelo de bosque-fuegos los autovalores son 
+
+  $$\mu_1^\text{abs} = -d_F \quad\textrm{y}\quad \mu_2^\text{abs} = \lambda_V - b_F - d_V$$ 
+
+--
+
+* Por lo tanto, el estado vacío solamente es estable cuando de $\lambda^\text{abs}_V < b_F + d_V$, en la igualdad está el punto crítico absorvente del sistema. 
+
+---
+## Fuego en el Bosque estocástico 
+
+* $F + V + Ø = N > 0$  
+
+--
+
+Asumiendo un intervalo de tiempo pequeño $h$ en el transcurso $t$ a $t+h$ 
+
+1. $V + Ø \xrightarrow{\lambda_V} V + V$
+
+    $P(V \to V+1, Ø \to Ø-1 ) = (\lambda_v V Ø )h = B\textrm{v}(t)h$ 
+
+--
+1. $V \xrightarrow{d_V} Ø$
+
+    $P(V \to V-1, Ø \to Ø+1) = (d_V V)h = D\textrm{v}(t)h$
+
+---
+## Fuego en el Bosque estocástico 
+
+.pull-left[
+1. $V + Ø \xrightarrow{\lambda_V} V + V$
+
+    $P(V \to V+1, Ø \to Ø-1 ) = (\lambda_v V Ø )h = B\textrm{v}(t)h$ 
+
+1. $V \xrightarrow{d_V} Ø$
+
+    $P(V \to V-1, Ø \to Ø+1) = (d_V V)h = D\textrm{v}(t)h$
+
+]
+
+--
+
+.pull-right[
+
+1. $F + V \xrightarrow{\lambda_F} F + F$
+
+    $P(F \to F+1,V \to V-1) = (\lambda_F F V)h = B\textrm{f}(t)h$
+
+4. $V \xrightarrow{b_F} F$
+
+    $P(V \to V-1, F \to F + 1) = (b_F V )h = B\textrm{f}_1(t)h$ 
+
+1. $F \xrightarrow{d_F} Ø$
+   
+   $P(F \to F-1, Ø \to Ø + 1) = (d_F F )h = D\textrm{f}(t)h$ 
+]
+
+---
+
+
+## Referencias
+
+1. Renshaw, E. (1993). Modelling biological populations in space and time. Cambridge University Press. [Capítulo 5 y 6]
+
+2. May R. (1973). Stability and complexity in model ecosystems. Princeton university press. [Capítulo 2]
+
+3. G. Nicoletti, L. Saravia, F. Momo, A. Maritan, S. Suweis (2021) The emergence of scale-free fires in Australia <https://www.researchgate.net/publication/355423974_The_emergence_of_scale-free_fires_in_Australia>
+
+4. Saravia, L., Bond-Lamberty, B., & Suweis, S. (2021). Amazon fire regimes under climate change scenarios. https://doi.org/10.32942/osf.io/nr23w
+
