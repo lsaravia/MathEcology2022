@@ -36,7 +36,7 @@ xaringanExtra::use_scribble()
 
 --
 
-* Sobre la base de esta probabilidad, se pueden derivar métodos estadísticos para la estimación de parámetros, la selección de modelos y el análisis de incertidumbre.
+* Sobre la base de esta probabilidad, se pueden derivar métodos estadísticos para la estimación de parámetros, la selección de modelos y el análisis de incertidumbre [1].
 
 
 ---
@@ -68,10 +68,31 @@ xaringanExtra::use_scribble()
 ]
 
 ---
+## ABC - Seleccion de modelos 
+
+* Se puede realizar una selección de modelos de forma jerárquica [2]
+
+  1. Se muestrea un modelo de la distribución anterior para los modelos
+--
+
+  2. Dado el modelo muestreado, los parámetros del modelo se muestrean de las distribuciones previas 
+
+--
+  3. Se realiza una simulación como en el modelo simple ABC. 
+
+--
+  4. Las frecuencias relativas de aceptación de los diferentes modelos ahora se aproximan 
+     a la distribución posterior de estos modelos.
+
+
+---
 
 ## Referencias
 
 1. Hartig, F., Calabrese, J. M., Reineking, B., Wiegand, T., and Huth, A. (2011). Statistical inference for stochastic simulation models – theory and application. Ecology Letters 14, 816–827. doi:10.1111/j.1461-0248.2011.01640.x.
 
-2. Csilléry, K., Blum, M. G. B., Gaggiotti, O. E., and François, O. (2010). Approximate Bayesian Computation (ABC) in practice. Trends in Ecology & Evolution 25, 410–418. doi:http://dx.doi.org/10.1016/j.tree.2010.04.001.
+1. Sunnåker, M., Busetto, A. G., Numminen, E., Corander, J., Foll, M., and Dessimoz, C. (2013). Approximate Bayesian Computation. PLOS Computational Biology 9, e1002803. doi:10.1371/journal.pcbi.1002803.
+
+1. McElreath, R. (2020). Statistical rethinking: a Bayesian course with examples in R and Stan. 2nd ed. Boca Raton: Taylor and Francis, CRC Press. [Lectures 2022](https://www.youtube.com/playlist?list=PLDcUM9US4XdMROZ57-OIRtIK0aOynbgZN)
+
 
