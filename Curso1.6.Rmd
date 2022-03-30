@@ -23,6 +23,27 @@ xaringanExtra::use_scribble()
 #xaringanExtra::use_webcam()
 ```
 
+## Metodología para el desarrollo de modelos
+
+1. Hipótesis, objetivos, marco teórico
+
+--
+
+2. Modelo/s conceptual, causal, gráfico.
+
+--
+
+3. Desarrollo del modelo/s con 1. y 2.
+
+--
+
+4. Validación teniendo en cuenta 1. 2.
+
+--
+
+5. Comparación con datos 
+
+---
 ## ABC - Approximate Bayesian computation
 
 * Para un modelo $M(\phi )$ dado que tenemos observaciones $D_{obs}$
@@ -86,7 +107,37 @@ xaringanExtra::use_scribble()
 
 
 ---
+## ABC en la practica
 
+
+* ABC con el modelo de bosque2D 
+
+--
+
+* Elegir un estadístico de comparación
+
+--
+
+* Elegir una distancia
+
+--
+
+* Elegir una distribución a priori para los parámetros
+
+--
+
+* Generar datos con el modelo
+
+--
+
+* Verificar que el algoritmo ajusta a los valores usados como datos
+
+--
+
+* Ajustar con datos reales
+
+
+---
 ## Referencias
 
 1. Hartig, F., Calabrese, J. M., Reineking, B., Wiegand, T., and Huth, A. (2011). Statistical inference for stochastic simulation models – theory and application. Ecology Letters 14, 816–827. doi:10.1111/j.1461-0248.2011.01640.x.

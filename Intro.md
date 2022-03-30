@@ -13,7 +13,16 @@
 
 ```
 >ln -s ~/julia-1.7.1/bin/julia ~/bin/julia
+
 ```
+
+o tambien
+
+```
+>ln -s ~/julia-1.7.1/bin/julia /usr/local/bin/julia
+
+```
+
 
 * Inicialmente el lenguaje se instala como un REPL (read-eval-print-loop) que es una línea de comandos interactiva.
 
