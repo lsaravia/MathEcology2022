@@ -28,8 +28,8 @@ end
 
 # Estimar threshold
 #
-using GLMakie
-saveanimated_fb2D(parms=[2.32,.87,50,2e-6,1.76],tfinal=50)
+#using GLMakie
+#saveanimated_fb2D(parms=[3,.87,50,3e-6,1.76],tfinal=50)
 
 ts1 = runtimeseries_fb2D(parms=[3,.5,50,1e-5,2],tfinal=200)
 ts2 = runtimeseries_fb2D(parms=[3,.5,50,1e-5,2],tfinal=200)

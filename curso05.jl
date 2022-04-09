@@ -5,117 +5,13 @@ using Plots
 using Statistics
 using Distributions
 
-fil, col =  (100,100)
-space = zeros(Int64,fil,col)
-
-[ space[rand(1:fil) , rand(1:col)] = 1 for i in 1:10]
-
-neighbors_VN = ((0,1),(0,-1),(1,0),(-1,0) )
-
-
-for i in 1:fil
-    for j in 1:col
-        if space[i,j]==1
-            x=(i,j) .+  rand(neighbors_VN)
-            if x[1] > fil || x[1] <1 || x[2] > col || x[2]<1
-                @info "Outside space $x"
-            else
-                space[x[1],x[2]] = 1
-            end
-        end
-    end
-end
-
-heatmap(space,aspect_ratio=1,legend=:none,xticks=:none,
-yticks=:none,framestyle=:none,color=[ :black , :green])
-
-
-
-
-#
-#  Construir las primeras funciones
-#
-function initialize_bosque(;fil::Int=200,col::Int=200, density::Float64=0.1)
-	
-	space = zeros(Int64,fil,col)
-    ini_dens = trunc(Int, fil*col*density)
-     
-	[ space[rand(1:fil) , rand(1:col)] = 1 for i in 1:ini_dens]
-    # no anda si no retorna space 
-    return space
-end
-
-
-function step_bosque!(landscape::Matrix{Int}, neighborhood)
-    @show neighborhood
-    for i in 1:fil
-        for j in 1:col
-            if landscape[i,j]==1
-                x=[i,j] .+  rand(neighborhood)
-                if x[1] > fil || x[1] <1 || x[2] > col || x[2]<1
-                    @info "Outside space $x"
-                else
-                    landscape[x[1],x[2]] = 1
-                end
-            end
-        end
-    end
-    return
-end
-
-#
-# 
-#
-bosq = initialize_bosque()
-sum(bosq)
-mean(bosq)
-var(bosq)
-typeof(bosq)
-step_bosque!(bosq,neighbors_VN)
-sum(bosq)
-mean(bosq)
-var(bosq)
-
-
-#
-# Add random position probabilities
-#
-function step_bosque!(landscape::Matrix{Int}, neighborhood)
-    fil = size(landscape,1)
-    col = size(landscape,2)
-    N = fil*col
-    for z in 1:N
-        i= rand(1:fil) 
-        j= rand(1:col)
-        if landscape[i,j]==1
-            x=[i,j] .+  rand(neighborhood)
-            if x[1] > fil || x[1] <1 || x[2] > col || x[2]<1
-                @info "Outside space $x"
-            else
-                landscape[x[1],x[2]] = 1
-            end
-
-        end
-    end
-    return
-end
-
 #
 # Funcion para graficar el bosque
 # 
 plot_bosque(x) = heatmap(x,aspect_ratio=1,legend=:none,xticks=:none,
-yticks=:none,framestyle=:none,color=[ :black , :green])
+yticks=:none,framestyle=:none,color=[ :black , :red])
 
 
-
-# bosq = initialize_bosque()
-# plot_bosq(bosq)
-# step_bosque!(bosq,neighbors_VN)
-# plot_bosq(bosq)
-
-#
-# Add parameters 
-#
 """
     step_bosque!(landscape::Matrix{Int}, neighborhood, parms)
 
@@ -164,9 +60,8 @@ end
 bosq = initialize_bosque()
 plot_bosque(bosq)
 step_bosque!(bosq,neighbors_VN, (.16,.1))
-plot_bosq(bosq)
+plot_bosque(bosq)
 
-using Random
 #
 # Version mejorada con densidad inicial mas exacta
 #
@@ -240,7 +135,7 @@ mm = initialize_bosque(fil=200,col=200, density=0.1 )
 fint = 100
 N = 200*200
 pob = [sum(mm)/N]
-λ = 1.5
+λ = 1.7
 δ = 1
 @gif for i in 1:fint
     step_bosque!(mm,neighbors_VN,(λ,δ));
